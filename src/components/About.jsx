@@ -70,9 +70,9 @@ const About = () => {
   const founders = [
     {
       id: 1,
-      name: "You",
+      name: "Hemal Naik",
       role: "Co-Founder & Creative Director",
-      expertise: ["Brand Strategy", "UI/UX Design", "Creative Vision", "Client Relations"],
+      expertise: ["Brand Strategy", "Marketing","Business Development" , "Creative Vision", "Client Relations"],
       bio: "Passionate about creating digital experiences that not only look stunning but drive real business growth. Believes in the power of design to transform brands.",
       personality: "The visionary who sees possibilities where others see challenges.",
       color: "from-cyan-400 to-blue-500",
@@ -80,7 +80,7 @@ const About = () => {
     },
     {
       id: 2,
-      name: "Hemal",
+      name: "Saif Shaikh",
       role: "Co-Founder & Technical Director",
       expertise: ["Web Development", "System Architecture", "Performance Optimization", "Innovation"],
       bio: "Tech enthusiast who transforms complex ideas into seamless digital solutions. Obsessed with clean code and cutting-edge technologies.",
