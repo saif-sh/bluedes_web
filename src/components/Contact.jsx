@@ -1,5 +1,7 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Send, Mail, User, MessageCircle, Sparkles, Zap, CheckCircle } from 'lucide-react';
+import React, { useState } from 'react';
+import { Send, Mail, User, MessageCircle, CheckCircle, Loader, Phone, MapPin, Star, Zap } from 'lucide-react';
+import emailjs from '@emailjs/browser';
+
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -7,301 +9,348 @@ const Contact = () => {
     email: '',
     message: ''
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState('');
   const [focusedField, setFocusedField] = useState('');
-  const [isHovered, setIsHovered] = useState(false);
-  const formRef = useRef(null);
-  const [particles, setParticles] = useState([]);
-
-  // Generate floating particles
-  useEffect(() => {
-    const generateParticles = () => {
-      const newParticles = [];
-      for (let i = 0; i < 20; i++) {
-        newParticles.push({
-          id: i,
-          x: Math.random() * 100,
-          y: Math.random() * 100,
-          size: Math.random() * 3 + 1,
-          delay: Math.random() * 4
-        });
-      }
-      setParticles(newParticles);
-    };
-    generateParticles();
-  }, []);
 
   const handleChange = (e) => {
     setFormData(prev => ({
       ...prev,
       [e.target.name]: e.target.value
     }));
+    setError('');
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Form submitted:', formData);
-    setSubmitted(true);
-    setTimeout(() => {
-      setSubmitted(false);
-      setFormData({ name: '', email: '', message: '' });
-      setFocusedField('');
-    }, 4000);
+    if (!isFormValid || isSubmitting || submitted) return;
+
+    setIsSubmitting(true);
+    setError('');
+
+    try {
+      await emailjs.send(
+        'service_sksalnk',     // replace with your actual EmailJS service ID
+        'template_bsr2sjv',    // replace with your template ID
+        {
+          name: formData.name,
+          email: formData.email,
+          message: formData.message,
+        },
+        'GJ0sTl70AYexXzu_5'       // your EmailJS public key
+      );
+
+      setSubmitted(true);
+      setTimeout(() => {
+        setSubmitted(false);
+        setFormData({ name: '', email: '', message: '' });
+        setFocusedField('');
+      }, 4000);
+    } catch (err) {
+      console.error('EmailJS Error:', err);
+      setError('Failed to send message. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const getFieldProgress = (field) => {
-    const value = formData[field];
-    if (!value) return 0;
-    const minLength = field === 'message' ? 20 : 3;
-    const maxLength = field === 'message' ? 100 : 30;
-    return Math.min((value.length / maxLength) * 100, 100);
-  };
+
+  const isFormValid = formData.name.trim() && formData.email.trim() && formData.message.trim();
 
   return (
-    <section className="relative min-h-screen w-full bg-gradient-to-br from-gray-950 via-gray-900 to-black text-white px-8 py-20 lg:px-16 overflow-hidden flex items-center justify-center">
-      {/* Animated Background Elements */}
+    <div className="min-h-screen w-full bg-black text-white relative overflow-x-hidden">
+      {/* Background with subtle grid */}
       <div className="absolute inset-0">
-        {/* Primary glow */}
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl animate-pulse" style={{animationDelay: '2s'}} />
-        
+        {/* Base gradient background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-blue-950/20 to-purple-950/15" />
+
+        {/* Subtle grid pattern */}
+        <div
+          className="absolute inset-0 opacity-[0.02]"
+          style={{
+            backgroundImage: `
+              linear-gradient(rgba(6, 182, 212, 0.1) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(6, 182, 212, 0.1) 1px, transparent 1px),
+              linear-gradient(rgba(147, 51, 234, 0.05) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(147, 51, 234, 0.05) 1px, transparent 1px)
+            `,
+            backgroundSize: '50px 50px, 50px 50px, 100px 100px, 100px 100px'
+          }}
+        />
+
+        {/* Floating gradient orbs */}
+        <div className="absolute top-10 left-10 w-64 h-64 lg:w-80 lg:h-80 bg-gradient-to-r from-cyan-500/15 via-blue-500/10 to-purple-500/8 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute top-1/2 right-10 w-48 h-48 lg:w-64 lg:h-64 bg-gradient-to-r from-purple-600/12 via-pink-500/8 to-cyan-500/10 rounded-full blur-3xl" />
+        <div className="absolute bottom-20 left-1/3 w-40 h-40 lg:w-56 lg:h-56 bg-gradient-to-r from-emerald-500/8 to-teal-500/12 rounded-full blur-2xl" />
+
         {/* Floating particles */}
-        {particles.map(particle => (
+        {[...Array(6)].map((_, i) => (
           <div
-            key={particle.id}
-            className="absolute w-1 h-1 bg-cyan-400/30 rounded-full"
+            key={i}
+            className="absolute w-1 h-1 bg-cyan-400/20 rounded-full animate-pulse"
             style={{
-              left: `${particle.x}%`,
-              top: `${particle.y}%`,
-              animation: `float 6s ease-in-out infinite`,
-              animationDelay: `${particle.delay}s`
+              left: `${20 + Math.random() * 60}%`,
+              top: `${20 + Math.random() * 60}%`,
+              animationDelay: `${i * 0.5}s`
             }}
           />
         ))}
-        
-        {/* Grid pattern */}
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDQwIDAgTCAwIDAgMCA0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJyZ2JhKDYsIDE4MiwgMjEyLCAwLjAzKSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-20" />
       </div>
 
-      <div className="relative z-10 w-full max-w-6xl">
-        {/* Header with animated elements */}
-        <div className="text-center mb-16 relative">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-cyan-500/10 border border-cyan-500/20 rounded-full mb-6 backdrop-blur-sm">
-            <Sparkles className="w-4 h-4 text-cyan-400 animate-spin" style={{animationDuration: '3s'}} />
-            <span className="text-sm text-cyan-300 font-medium">Let's Build Something Amazing</span>
-            <Zap className="w-4 h-4 text-blue-400 animate-bounce" />
+      {/* Glassmorphism overlay */}
+      <div className="absolute inset-0 backdrop-blur-[0.5px] bg-gradient-to-b from-transparent via-black/3 to-black/10" />
+
+      {/* Main content */}
+      <div className="relative z-10 w-full px-4 lg:px-8 py-12 lg:py-16 max-w-6xl mx-auto">
+
+        {/* Header Section */}
+        <div className="text-center mb-12 lg:mb-16 relative">
+          {/* Status badge */}
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-slate-800/50 via-slate-800/30 to-slate-800/50 backdrop-blur-xl border border-cyan-500/20 rounded-full mb-8 hover:border-cyan-400/40 transition-all duration-700 group relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <div className="w-2 h-2 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full animate-pulse relative">
+              <div className="absolute inset-0 bg-cyan-400 rounded-full animate-ping opacity-60" />
+            </div>
+            <Zap className="w-4 h-4 text-cyan-400 group-hover:rotate-12 transition-transform duration-300" />
+            <span className="text-sm text-slate-200 font-medium">Available for Projects</span>
+            <Star className="w-4 h-4 text-yellow-400 group-hover:rotate-12 transition-transform duration-300" />
           </div>
-          
-          <h2 className="text-6xl md:text-7xl font-bold leading-tight text-white mb-6 relative">
-            Get In{' '}
-            <span className="bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 bg-clip-text text-transparent animate-pulse">
-              Touch
-            </span>
-            <div className="absolute -inset-2 bg-gradient-to-r from-cyan-500/20 to-blue-600/20 blur-xl -z-10 animate-pulse" />
-          </h2>
-          
-          <p className="text-gray-400 max-w-2xl mx-auto text-xl leading-relaxed">
-            Ready to transform your ideas into reality? Let's start a conversation that could change everything.
+
+          {/* Main title */}
+          <div className="space-y-3">
+            <h1 className="text-4xl lg:text-5xl font-extralight tracking-tighter leading-tight">
+              <div className="inline-block">
+                <span className="text-white/90">Let's </span>
+                <span className="bg-gradient-to-r from-cyan-300 via-blue-400 to-purple-400 bg-clip-text text-transparent relative inline-block">
+                  Create
+                  <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/15 to-purple-400/15 blur-2xl -z-10 scale-150" />
+                </span>
+              </div>
+              <div className="text-white/70">
+                Together
+              </div>
+            </h1>
+          </div>
+
+          <p className="text-slate-300 text-base lg:text-lg max-w-2xl mx-auto leading-relaxed font-light mt-6 px-4">
+            Transform your vision into reality. Let's discuss your next big idea and make it extraordinary.
           </p>
         </div>
 
-        {/* Main Form Container */}
-        <div className="relative max-w-4xl mx-auto">
-          <form
-            ref={formRef}
-            onSubmit={handleSubmit}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-            className="relative bg-gradient-to-br from-gray-900/80 via-gray-800/60 to-gray-900/80 backdrop-blur-2xl border border-gray-700/50 rounded-3xl p-8 md:p-12 transition-all duration-700 hover:border-cyan-500/30 hover:shadow-2xl hover:shadow-cyan-500/10 group"
-            style={{
-              transform: isHovered ? 'translateY(-8px) scale(1.01)' : 'translateY(0) scale(1)',
-              boxShadow: isHovered ? '0 25px 50px rgba(6, 182, 212, 0.1)' : '0 10px 25px rgba(0, 0, 0, 0.2)'
-            }}
-          >
-            {/* Animated border glow */}
-            <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-cyan-500/20 to-blue-600/20 blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10" />
-            
-            <div className="grid md:grid-cols-2 gap-8">
-              {/* Name Field */}
-              <div className="group/field relative">
-                <label className="block mb-3 text-sm font-semibold text-gray-400 transition-all duration-300 group-hover/field:text-cyan-400">
-                  Your Name
-                  <span className="ml-1 text-cyan-500">*</span>
-                </label>
-                <div className="relative">
-                  <User className={`absolute left-4 top-4 w-5 h-5 transition-all duration-300 ${
-                    focusedField === 'name' ? 'text-cyan-400 scale-110' : 'text-gray-500'
-                  }`} />
-                  <input
-                    type="text"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    onFocus={() => setFocusedField('name')}
-                    onBlur={() => setFocusedField('')}
-                    required
-                    className="w-full pl-12 pr-4 py-4 bg-gray-800/50 border-2 border-gray-700/50 rounded-2xl text-white focus:outline-none focus:border-cyan-500/50 focus:bg-gray-800/70 transition-all duration-500 hover:border-gray-600/70 text-lg placeholder-gray-500"
-                    placeholder="John Doe"
-                    style={{
-                      transform: focusedField === 'name' ? 'scale(1.02)' : 'scale(1)',
-                    }}
-                  />
-                  {/* Progress bar */}
-                  <div className="absolute bottom-0 left-0 h-1 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-full transition-all duration-300"
-                       style={{ width: `${getFieldProgress('name')}%`, opacity: formData.name ? 1 : 0 }} />
-                </div>
-              </div>
+        {/* Main content grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 lg:gap-12 items-start">
 
-              {/* Email Field */}
-              <div className="group/field relative">
-                <label className="block mb-3 text-sm font-semibold text-gray-400 transition-all duration-300 group-hover/field:text-cyan-400">
-                  Your Email
-                  <span className="ml-1 text-cyan-500">*</span>
-                </label>
-                <div className="relative">
-                  <Mail className={`absolute left-4 top-4 w-5 h-5 transition-all duration-300 ${
-                    focusedField === 'email' ? 'text-cyan-400 scale-110' : 'text-gray-500'
-                  }`} />
-                  <input
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    onFocus={() => setFocusedField('email')}
-                    onBlur={() => setFocusedField('')}
-                    required
-                    className="w-full pl-12 pr-4 py-4 bg-gray-800/50 border-2 border-gray-700/50 rounded-2xl text-white focus:outline-none focus:border-cyan-500/50 focus:bg-gray-800/70 transition-all duration-500 hover:border-gray-600/70 text-lg placeholder-gray-500"
-                    placeholder="you@example.com"
-                    style={{
-                      transform: focusedField === 'email' ? 'scale(1.02)' : 'scale(1)',
-                    }}
-                  />
-                  {/* Progress bar */}
-                  <div className="absolute bottom-0 left-0 h-1 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-full transition-all duration-300"
-                       style={{ width: `${getFieldProgress('email')}%`, opacity: formData.email ? 1 : 0 }} />
-                </div>
-              </div>
-            </div>
-
-            {/* Message Field */}
-            <div className="mt-8 group/field relative">
-              <label className="block mb-3 text-sm font-semibold text-gray-400 transition-all duration-300 group-hover/field:text-cyan-400">
-                Your Message
-                <span className="ml-1 text-cyan-500">*</span>
-              </label>
-              <div className="relative">
-                <MessageCircle className={`absolute left-4 top-4 w-5 h-5 transition-all duration-300 ${
-                  focusedField === 'message' ? 'text-cyan-400 scale-110' : 'text-gray-500'
-                }`} />
-                <textarea
-                  name="message"
-                  value={formData.message}
-                  onChange={handleChange}
-                  onFocus={() => setFocusedField('message')}
-                  onBlur={() => setFocusedField('')}
-                  required
-                  rows="6"
-                  className="w-full pl-12 pr-4 py-4 bg-gray-800/50 border-2 border-gray-700/50 rounded-2xl text-white focus:outline-none focus:border-cyan-500/50 focus:bg-gray-800/70 transition-all duration-500 hover:border-gray-600/70 text-lg placeholder-gray-500 resize-none"
-                  placeholder="Tell us about your project, ideas, or just say hello..."
-                  style={{
-                    transform: focusedField === 'message' ? 'scale(1.01)' : 'scale(1)',
-                  }}
-                ></textarea>
-                {/* Progress bar */}
-                <div className="absolute bottom-0 left-0 h-1 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-full transition-all duration-300"
-                     style={{ width: `${getFieldProgress('message')}%`, opacity: formData.message ? 1 : 0 }} />
-              </div>
-            </div>
-
-            {/* Submit Button */}
-            <div className="mt-10 text-center">
-              <button
-                type="submit"
-                disabled={submitted}
-                className="group/btn relative px-12 py-5 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold text-lg rounded-full hover:from-cyan-400 hover:to-blue-500 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-cyan-500/25 disabled:opacity-70 disabled:cursor-not-allowed overflow-hidden"
-                onMouseEnter={(e) => {
-                  if (!submitted) {
-                    e.currentTarget.style.transform = 'scale(1.05) translateY(-3px)';
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (!submitted) {
-                    e.currentTarget.style.transform = 'scale(1) translateY(0)';
-                  }
-                }}
+          {/* Contact info cards */}
+          <div className="lg:col-span-2 space-y-6">
+            {[
+              {
+                icon: Mail,
+                title: "Email",
+                value: "hello@example.com",
+                description: "Drop me a line anytime",
+                gradient: "from-cyan-500/10 to-blue-500/10",
+                iconColor: "text-cyan-400"
+              },
+              {
+                icon: Phone,
+                title: "Phone",
+                value: "+1 (555) 123-4567",
+                description: "Let's have a conversation",
+                gradient: "from-purple-500/10 to-pink-500/10",
+                iconColor: "text-purple-400"
+              },
+              {
+                icon: MapPin,
+                title: "Location",
+                value: "San Francisco, CA",
+                description: "Open to remote projects worldwide",
+                gradient: "from-emerald-500/10 to-teal-500/10",
+                iconColor: "text-emerald-400"
+              }
+            ].map((item, index) => (
+              <div
+                key={index}
+                className="group relative bg-gradient-to-br from-slate-800/25 via-slate-800/15 to-slate-900/35 backdrop-blur-2xl border border-slate-600/25 rounded-2xl p-6 hover:border-slate-500/45 transition-all duration-1000 hover:bg-gradient-to-br hover:from-slate-800/40 hover:to-slate-700/25 overflow-hidden"
               >
-                {/* Button glow effect */}
-                <div className="absolute inset-0 bg-gradient-to-r from-cyan-400 to-blue-500 opacity-0 group-hover/btn:opacity-20 transition-opacity duration-300 rounded-full blur" />
-                
-                {/* Ripple effect */}
-                <div className="absolute inset-0 bg-white/10 rounded-full transform scale-0 group-hover/btn:scale-100 transition-transform duration-500" />
-                
-                <div className="relative flex items-center justify-center gap-3">
-                  {submitted ? (
-                    <>
-                      <CheckCircle className="w-6 h-6 text-green-400 animate-bounce" />
-                      <span className="bg-gradient-to-r from-green-400 to-emerald-500 bg-clip-text text-transparent">
-                        Message Sent Successfully!
-                      </span>
-                    </>
-                  ) : (
-                    <>
-                      <span>Send Message</span>
-                      <Send className="w-6 h-6 group-hover/btn:translate-x-1 group-hover/btn:rotate-12 transition-all duration-300" />
-                    </>
-                  )}
-                </div>
-              </button>
-            </div>
+                {/* Animated background gradient */}
+                <div className={`absolute inset-0 bg-gradient-to-r ${item.gradient} rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-700`} />
 
-            {/* Form completion indicator */}
-            {(formData.name || formData.email || formData.message) && (
-              <div className="mt-8 text-center">
-                <div className="inline-flex items-center gap-2 px-4 py-2 bg-cyan-500/10 border border-cyan-500/20 rounded-full backdrop-blur-sm">
-                  <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse" />
-                  <span className="text-sm text-cyan-300">
-                    Form {Math.round(((formData.name ? 1 : 0) + (formData.email ? 1 : 0) + (formData.message ? 1 : 0)) / 3 * 100)}% complete
-                  </span>
+                {/* Glow effect */}
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-500/15 to-purple-500/15 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl -z-10" />
+
+                <div className="relative">
+                  <div className="flex items-center justify-between mb-4">
+                    <item.icon className={`w-6 h-6 ${item.iconColor} group-hover:scale-125 group-hover:rotate-6 transition-all duration-700`} />
+                    <div className="w-2 h-2 bg-current opacity-30 rounded-full animate-pulse" />
+                  </div>
+
+                  <h3 className="text-white font-semibold text-lg mb-2 group-hover:text-slate-100 transition-colors duration-500">
+                    {item.title}
+                  </h3>
+
+                  <p className={`${item.iconColor} text-base font-medium mb-2 group-hover:scale-105 transition-transform duration-500`}>
+                    {item.value}
+                  </p>
+
+                  <p className="text-slate-400 text-sm group-hover:text-slate-300 transition-colors duration-500">
+                    {item.description}
+                  </p>
                 </div>
               </div>
-            )}
-          </form>
+            ))}
+          </div>
+
+          {/* Contact form */}
+          <div className="lg:col-span-3">
+            <div className="relative bg-gradient-to-br from-slate-800/15 via-slate-900/25 to-slate-800/15 backdrop-blur-2xl border border-slate-600/20 rounded-3xl p-8 overflow-hidden">
+
+              {/* Premium border glow */}
+              <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-cyan-500/8 via-purple-500/4 to-blue-500/8 opacity-0 hover:opacity-100 transition-opacity duration-1000 -z-10 blur-2xl" />
+
+              {/* Floating form elements */}
+              <div className="absolute top-4 right-4 w-2 h-2 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full animate-pulse" />
+              <div className="absolute bottom-4 left-4 w-1.5 h-1.5 bg-gradient-to-r from-purple-400 to-pink-500 rounded-full animate-pulse" style={{ animationDelay: '1s' }} />
+
+              <div className="space-y-6">
+
+                {/* Form fields */}
+                {[
+                  { name: 'name', label: 'Name', icon: User, type: 'text', placeholder: 'Your full name' },
+                  { name: 'email', label: 'Email', icon: Mail, type: 'email', placeholder: 'your.email@example.com' },
+                ].map((field) => (
+                  <div key={field.name} className="group relative">
+                    <label className="block text-sm font-medium text-slate-200 mb-3 transition-all duration-500 group-hover:text-cyan-300 uppercase tracking-wider">
+                      {field.label}
+                    </label>
+                    <div className="relative">
+                      <field.icon className={`absolute left-4 top-4 w-5 h-5 transition-all duration-700 z-10 ${focusedField === field.name ? 'text-cyan-400 scale-125 rotate-3' : 'text-slate-400'
+                        }`} />
+                      <input
+                        type={field.type}
+                        name={field.name}
+                        value={formData[field.name]}
+                        onChange={handleChange}
+                        onFocus={() => setFocusedField(field.name)}
+                        onBlur={() => setFocusedField('')}
+                        required
+                        className="w-full pl-12 pr-4 py-4 bg-gradient-to-r from-slate-900/50 via-slate-900/35 to-slate-900/50 backdrop-blur-sm border border-slate-600/35 rounded-xl text-white focus:outline-none focus:border-cyan-400/50 focus:bg-slate-900/70 transition-all duration-700 hover:border-slate-500/50 placeholder-slate-500 text-base"
+                        placeholder={field.placeholder}
+                        style={{
+                          transform: focusedField === field.name ? 'translateY(-1px) scale(1.005)' : 'translateY(0) scale(1)',
+                          boxShadow: focusedField === field.name ? '0 8px 16px rgba(6, 182, 212, 0.08)' : 'none'
+                        }}
+                      />
+                      <div className={`absolute inset-0 rounded-xl bg-gradient-to-r from-cyan-500/8 to-blue-500/8 opacity-0 transition-opacity duration-500 -z-10 ${focusedField === field.name ? 'opacity-100' : ''
+                        }`} />
+                    </div>
+                  </div>
+                ))}
+
+                {/* Message field */}
+                <div className="group relative">
+                  <label className="block text-sm font-medium text-slate-200 mb-3 transition-all duration-500 group-hover:text-cyan-300 uppercase tracking-wider">
+                    Message
+                  </label>
+                  <div className="relative">
+                    <MessageCircle className={`absolute left-4 top-4 w-5 h-5 transition-all duration-700 z-10 ${focusedField === 'message' ? 'text-cyan-400 scale-125 rotate-3' : 'text-slate-400'
+                      }`} />
+                    <textarea
+                      name="message"
+                      value={formData.message}
+                      onChange={handleChange}
+                      onFocus={() => setFocusedField('message')}
+                      onBlur={() => setFocusedField('')}
+                      required
+                      rows="4"
+                      className="w-full pl-12 pr-4 py-4 bg-gradient-to-r from-slate-900/50 via-slate-900/35 to-slate-900/50 backdrop-blur-sm border border-slate-600/35 rounded-xl text-white focus:outline-none focus:border-cyan-400/50 focus:bg-slate-900/70 transition-all duration-700 hover:border-slate-500/50 placeholder-slate-500 resize-none text-base"
+                      placeholder="Tell me about your project, timeline, and how we can work together..."
+                      style={{
+                        transform: focusedField === 'message' ? 'translateY(-1px) scale(1.005)' : 'translateY(0) scale(1)',
+                        boxShadow: focusedField === 'message' ? '0 8px 16px rgba(6, 182, 212, 0.08)' : 'none'
+                      }}
+                    />
+                    <div className={`absolute inset-0 rounded-xl bg-gradient-to-r from-cyan-500/8 to-blue-500/8 opacity-0 transition-opacity duration-500 -z-10 ${focusedField === 'message' ? 'opacity-100' : ''
+                      }`} />
+                  </div>
+                </div>
+
+                {/* Error message */}
+                {error && (
+                  <div className="text-red-300 text-sm bg-gradient-to-r from-red-500/15 to-pink-500/8 border border-red-500/25 rounded-xl p-4 backdrop-blur-sm">
+                    {error}
+                  </div>
+                )}
+
+                {/* Submit button */}
+                <button
+                  onClick={handleSubmit}
+                  disabled={!isFormValid || isSubmitting || submitted}
+                  className="group relative w-full py-4 px-6 bg-gradient-to-r from-cyan-500 via-blue-600 to-purple-600 text-white font-semibold rounded-xl hover:from-cyan-400 hover:via-blue-500 hover:to-purple-500 transition-all duration-700 disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden text-base"
+                  style={{
+                    transform: isFormValid && !isSubmitting && !submitted ? 'translateY(-1px) scale(1.005)' : 'translateY(0) scale(1)',
+                    boxShadow: isFormValid && !isSubmitting && !submitted ? '0 12px 24px rgba(6, 182, 212, 0.2)' : 'none'
+                  }}
+                >
+                  <div className="absolute inset-0 bg-gradient-to-r from-white/8 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-xl" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/25 to-purple-500/25 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl blur-xl -z-10" />
+
+                  <div className="relative flex items-center justify-center gap-3">
+                    {isSubmitting ? (
+                      <>
+                        <Loader className="w-5 h-5 animate-spin" />
+                        <span>Sending Your Message...</span>
+                      </>
+                    ) : submitted ? (
+                      <>
+                        <CheckCircle className="w-5 h-5 text-green-400 animate-pulse" />
+                        <span className="text-green-300">Message Sent Successfully!</span>
+                      </>
+                    ) : (
+                      <>
+                        <span className="z-10 text-white">Send Message</span>
+                        <Send className="w-5 h-5 text-white group-hover:translate-x-1 group-hover:-translate-y-0.5 transition-transform duration-500" />
+                      </>
+                    )}
+                  </div>
+                </button>
+
+                {/* Progress indicator */}
+                {(formData.name || formData.email || formData.message) && (
+                  <div className="flex items-center justify-center">
+                    <div className="inline-flex items-center gap-3 px-4 py-2 bg-gradient-to-r from-cyan-500/15 to-purple-500/15 border border-cyan-400/25 rounded-full text-sm text-cyan-200 backdrop-blur-sm">
+                      <div className="w-2 h-2 bg-gradient-to-r from-cyan-400 to-purple-400 rounded-full animate-pulse" />
+                      <span className="font-medium">
+                        {Math.round(((formData.name ? 1 : 0) + (formData.email ? 1 : 0) + (formData.message ? 1 : 0)) / 3 * 100)}% Complete
+                      </span>
+                      <div className="w-12 h-1 bg-slate-700 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-gradient-to-r from-cyan-400 to-purple-400 rounded-full transition-all duration-500"
+                          style={{
+                            width: `${((formData.name ? 1 : 0) + (formData.email ? 1 : 0) + (formData.message ? 1 : 0)) / 3 * 100}%`
+                          }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* Contact info cards */}
-        <div className="grid md:grid-cols-3 gap-6 mt-16 max-w-4xl mx-auto">
-          {[
-            { icon: Mail, title: "Email", value: "hello@example.com", delay: "0s" },
-            { icon: MessageCircle, title: "Response Time", value: "Within 24 hours", delay: "0.2s" },
-            { icon: Zap, title: "Project Timeline", value: "2-4 weeks avg", delay: "0.4s" }
-          ].map((item, index) => (
-            <div
-              key={index}
-              className="bg-gray-900/40 backdrop-blur-sm border border-gray-700/30 rounded-2xl p-6 text-center hover:border-cyan-500/30 hover:bg-gray-800/40 transition-all duration-500 group/card hover:scale-105"
-              style={{
-                animation: 'slideUp 0.6s ease-out forwards',
-                animationDelay: item.delay
-              }}
-            >
-              <item.icon className="w-8 h-8 mx-auto mb-3 text-cyan-400 group-hover/card:scale-110 transition-transform duration-300" />
-              <h4 className="font-semibold text-white mb-1">{item.title}</h4>
-              <p className="text-gray-400 text-sm">{item.value}</p>
-            </div>
-          ))}
+        {/* Footer */}
+        <div className="text-center mt-16 relative">
+          <div className="inline-block p-6 bg-gradient-to-r from-slate-800/15 to-slate-900/15 backdrop-blur-xl border border-slate-600/20 rounded-2xl max-w-lg mx-auto">
+            <p className="text-slate-300 text-base font-light">
+              I typically respond within <span className="text-cyan-400 font-medium">24 hours</span>.
+              <br className="hidden sm:block" />
+              <span className="sm:ml-1">Looking forward to our collaboration! ✨</span>
+            </p>
+          </div>
         </div>
       </div>
-
-      <style jsx>{`
-        @keyframes float {
-          0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.3; }
-          50% { transform: translateY(-20px) rotate(180deg); opacity: 1; }
-        }
-        @keyframes slideUp {
-          from { opacity: 0; transform: translateY(30px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-      `}</style>
-    </section>
+    </div>
   );
 };
 

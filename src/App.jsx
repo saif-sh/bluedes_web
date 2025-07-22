@@ -70,7 +70,7 @@ const App = () => {
         </section>
 
         {/* Contact */}
-        <section id="contact" className="min-h-[60vh] flex items-center justify-center bg-white dark:bg-[#010914] px-4">
+        <section id="contact" className=" flex items-center justify-center bg-white dark:bg-[#010914] px-4">
           <Contact />
           {/* <div className="max-w-3xl text-center">
             <h2 className="text-4xl font-bold text-cyan-600 dark:text-cyan-400 uppercase">Let's Collaborate</h2>
