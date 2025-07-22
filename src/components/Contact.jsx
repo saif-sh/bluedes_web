@@ -343,7 +343,7 @@ const Contact = () => {
         <div className="text-center mt-16 relative">
           <div className="inline-block p-6 bg-gradient-to-r from-slate-800/15 to-slate-900/15 backdrop-blur-xl border border-slate-600/20 rounded-2xl max-w-lg mx-auto">
             <p className="text-slate-300 text-base font-light">
-              I typically respond within <span className="text-cyan-400 font-medium">24 hours</span>.
+              We typically respond within <span className="text-cyan-400 font-medium">24 hours</span>.
               <br className="hidden sm:block" />
               <span className="sm:ml-1">Looking forward to our collaboration! ✨</span>
             </p>
