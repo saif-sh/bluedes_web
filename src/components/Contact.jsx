@@ -32,7 +32,7 @@ const Contact = () => {
     try {
       await emailjs.send(
         'service_sksalnk',     // replace with your actual EmailJS service ID
-        'template_bsr2sjv',    // replace with your template ID
+        'template_6gxcgo4',    // replace with your template ID
         {
           name: formData.name,
           email: formData.email,
@@ -290,8 +290,8 @@ const Contact = () => {
                   style={{
                     transform: isFormValid && !isSubmitting && !submitted ? 'translateY(-1px) scale(1.005)' : 'translateY(0) scale(1)',
                     boxShadow: isFormValid && !isSubmitting && !submitted ? '0 12px 24px rgba(6, 182, 212, 0.2)' : 'none'
-                  }}
-                >
+                  }}>
+                    
                   <div className="absolute inset-0 bg-gradient-to-r from-white/8 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-xl" />
                   <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/25 to-purple-500/25 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl blur-xl -z-10" />
 
